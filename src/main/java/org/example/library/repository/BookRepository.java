@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.example.library.entity.BookStatus;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -121,6 +122,7 @@ public class BookRepository{
                 status.name()
         );
     }
+
     public List<Book> findByTitle(String keyword) {
         String sql = """
             SELECT *
@@ -135,6 +137,55 @@ public class BookRepository{
                 sql,
                 this::mapRow,
                 searchKeyword
+        );
+    }
+    public List<Book> findByAuthor(String keyword){
+        String sql = """
+            SELECT *
+            FROM book
+            WHERE author LIKE ?
+            ORDER BY id DESC
+            """;
+
+        String searchKeyword = "%" + keyword + "%";
+        return jdbcTemplate.query(
+                sql,
+                this::mapRow,
+                searchKeyword
+        );
+
+    }
+    public List<Book> findByPriceRange(
+            BigDecimal minPrice,
+            BigDecimal maxPrice
+    ) {
+        String sql = """
+            SELECT *
+            FROM book
+            WHERE price BETWEEN ? AND ?
+            ORDER BY price ASC
+            """;
+
+        return jdbcTemplate.query(
+                sql,
+                this::mapRow,
+                minPrice,
+                maxPrice
+        );
+    }
+    public List<Book> findAvailableBooks() {
+        String sql = """
+            SELECT *
+            FROM book
+            WHERE status = ?
+              AND stock  > 0
+            ORDER BY id DESC
+            """;
+
+        return jdbcTemplate.query(
+                sql,
+                this::mapRow,
+                BookStatus.ON_SALE.name()
         );
     }
     public List<Book> findPage(int page, int size) {
