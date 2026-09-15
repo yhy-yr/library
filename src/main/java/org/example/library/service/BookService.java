@@ -1,6 +1,7 @@
 package org.example.library.service;
 
 import org.example.library.entity.Book;
+import org.example.library.entity.BookStatus;
 import org.example.library.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +42,11 @@ public class BookService {
     }
     public int delete(Long id) {
         return bookRepository.deleteById(id);
+    }
+    public List<Book> searchByTitle(String keyword) {
+        return bookRepository.findByTitle(keyword);
+    }
+    public List<Book> getByStatus(BookStatus status) {
+        return bookRepository.findByStatus(status);
     }
 }

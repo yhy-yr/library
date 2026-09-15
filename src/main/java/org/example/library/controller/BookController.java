@@ -1,6 +1,7 @@
 package org.example.library.controller;
 
 import org.example.library.entity.Book;
+import org.example.library.entity.BookStatus;
 import org.example.library.service.BookService;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,22 @@ public class BookController {
             @RequestBody Book book
     ) {
         return bookService.update(id, book);
+    }
+    @DeleteMapping("/{id}")
+    public int delete(@PathVariable Long id) {
+        return bookService.delete(id);
+    }
+    @GetMapping("/search")
+    public List<Book> searchByTitle(
+            @RequestParam String keyword
+    ) {
+        return bookService.searchByTitle(keyword);
+    }
+    @GetMapping("/status")
+    public List<Book> getByStatus(
+            @RequestParam BookStatus status
+    ) {
+        return bookService.getByStatus(status);
     }
 
 
