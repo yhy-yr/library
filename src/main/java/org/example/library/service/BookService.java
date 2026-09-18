@@ -2,7 +2,9 @@ package org.example.library.service;
 
 import org.example.library.entity.Book;
 import org.example.library.entity.BookStatus;
+import org.example.library.exception.ConflictException;
 import org.example.library.repository.BookRepository;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +30,14 @@ public class BookService {
     public int create(Book book) {
         validateBook(book);
 
-        return bookRepository.save(book);
+        try {
+            return bookRepository.save(book);
+        } catch (DuplicateKeyException exception) {
+            throw new ConflictException(
+                    "ISBN 已存在",
+                    exception
+            );
+        }
     }
     public List<Book> getAll() {
         return bookRepository.findAll();

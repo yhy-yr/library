@@ -29,4 +29,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body("ISBN 已存在");
     }
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFoundException(
+            ResourceNotFoundException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<String> handleConflictException(
+            ConflictException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(exception.getMessage());
+    }
 }
