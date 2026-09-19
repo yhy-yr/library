@@ -73,17 +73,10 @@ public class BookController {
         return bookService.getAvailableBooks();
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-
-        // Service 返回受影响行数：1 表示删除成功，0 表示 ID 不存在。
-        int affectedRows = bookService.delete(id);
-
-        // 没有删除任何记录，说明图书不存在。
-        if (affectedRows == 0) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // 删除成功。204 表示操作成功，但不需要返回响应数据。
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id
+    ) {
+        bookService.delete(id);
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/search")
@@ -107,6 +100,14 @@ public class BookController {
                 minPrice,
                 maxPrice
         );
+    }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable Long id,
+            @RequestParam BookStatus status
+    ) {
+        bookService.updateStatus(id, status);
+        return ResponseEntity.noContent().build();
     }
 
 

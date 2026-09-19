@@ -3,6 +3,7 @@ package org.example.library.service;
 import org.example.library.entity.Book;
 import org.example.library.entity.BookStatus;
 import org.example.library.exception.ConflictException;
+import org.example.library.exception.ResourceNotFoundException;
 import org.example.library.repository.BookRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import java.math.BigDecimal;
 import org.example.library.dto.BookPageResponse;
+
+import static org.example.library.entity.BookStatus.OFF_SALE;
 
 @Service
 public class BookService {
@@ -25,7 +28,11 @@ public class BookService {
     }
 
     public Optional<Book> getById(Long id) {
-        return bookRepository.findById(id);
+        return bookRepository.findById(id)
+                .filter(
+                        book -> book.getStatus()
+                                != OFF_SALE
+                );
     }
     public int create(Book book) {
         validateBook(book);
@@ -48,8 +55,18 @@ public class BookService {
 
         return bookRepository.update(book);
     }
-    public int delete(Long id) {
-        return bookRepository.deleteById(id);
+    public void delete(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("图书不存在")
+                );
+
+        if (book.getStatus() != BookStatus.ON_SALE) {
+            throw new ConflictException("图书已经下架");
+        }
+
+        updateStatus(id, OFF_SALE);
+
     }
     public List<Book> searchByTitle(String keyword) {
         return bookRepository.findByTitle(keyword);
@@ -156,6 +173,18 @@ public class BookService {
         // 库存必须填写，并且不能小于 0。
         if (book.getStock() == null || book.getStock() < 0) {
             throw new IllegalArgumentException("图书库存不能为负数");
+        }
+    }
+    public void updateStatus(
+            Long id,
+            BookStatus status
+    ) {
+        int affectedRows = bookRepository.updateStatus(id, status);
+
+        if (affectedRows == 0) {
+            throw new ResourceNotFoundException(
+                    "图书不存在"
+            );
         }
     }
 

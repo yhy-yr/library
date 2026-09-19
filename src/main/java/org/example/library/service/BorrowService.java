@@ -3,6 +3,7 @@ package org.example.library.service;
 import org.example.library.dto.BorrowDetailResponse;
 import org.example.library.dto.BorrowRequest;
 import org.example.library.entity.*;
+import org.example.library.exception.ConflictException;
 import org.example.library.exception.ResourceNotFoundException;
 import org.example.library.repository.BookRepository;
 import org.example.library.repository.BorrowRecordRepository;
@@ -36,32 +37,32 @@ public class BorrowService {
         Reader reader = readerRepository
                 .findById(request.readerId())
                 .orElseThrow(
-                        () -> new IllegalArgumentException(
-                                "读者不存在"
-                        )
+                        () -> new ResourceNotFoundException("读者不存在")
                 );
 
         if (reader.getStatus() != ReaderStatus. ACTIVE) {
-            throw new IllegalArgumentException("读者已停用");
+            // 读者已停用
+            throw new ConflictException("读者已停用");
         }
         long borrowedCount =
                 borrowRecordRepository.countBorrowedByReaderId(request.readerId());
 
         if (borrowedCount >= 5) {
-            throw new IllegalArgumentException(
+            // 已借满 5 本
+            throw new ConflictException(
                     "每位读者最多同时借阅 5 本图书"
             );
+
         }
         Book book = bookRepository
                 .findById(request.bookId())
                 .orElseThrow(
-                        () -> new IllegalArgumentException(
-                                "图书不存在"
-                        )
+                        () -> // 图书不存在
+                                new ResourceNotFoundException("图书不存在")
                 );
 
         if (book.getStatus() != BookStatus.ON_SALE) {
-            throw new IllegalArgumentException("图书已经下架");
+            throw new ConflictException("图书已经下架");
         }
         boolean alreadyBorrowed =
                 borrowRecordRepository.existsBorrowedRecord(
@@ -70,7 +71,7 @@ public class BorrowService {
                 );
 
         if (alreadyBorrowed) {
-            throw new IllegalArgumentException(
+            throw new ConflictException(
                     "不能重复借阅同一本图书"
             );
         }
@@ -80,7 +81,7 @@ public class BorrowService {
         );
 
         if (affectedRows == 0) {
-            throw new IllegalArgumentException("图书库存不足");
+            throw new ConflictException("图书库存不足");
         }
 
 
@@ -95,13 +96,13 @@ public class BorrowService {
         BorrowRecord record = borrowRecordRepository
                 .findById(borrowId)
                 .orElseThrow(
-                        () -> new IllegalArgumentException(
+                        () -> new ResourceNotFoundException(
                                 "借阅记录不存在"
                         )
                 );
 
         if (record.status() != BorrowStatus. BORROWED) {
-            throw new IllegalArgumentException(
+            throw new ConflictException(
                     "该借阅记录已经归还"
             );
         }
@@ -110,7 +111,7 @@ public class BorrowService {
         );
 
         if (affectedRows == 0) {
-            throw new IllegalArgumentException(
+            throw new ConflictException(
                     "借阅记录已被归还"
             );
         }
@@ -150,6 +151,7 @@ public class BorrowService {
                         )
                 );
     }
+
 
 
 

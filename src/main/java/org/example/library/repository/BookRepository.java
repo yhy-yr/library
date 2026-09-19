@@ -155,6 +155,23 @@ public class BookRepository{
         );
 
     }
+    public int updateStatus(
+            Long id,
+            BookStatus status
+    ) {
+        String sql = """
+        UPDATE book
+        SET status = ?,
+            updated_at = NOW()
+        WHERE id = ?
+        """;
+
+        return jdbcTemplate.update(
+                sql,
+                status.name(),
+                id
+        );
+    }
     public List<Book> findByPriceRange(
             BigDecimal minPrice,
             BigDecimal maxPrice

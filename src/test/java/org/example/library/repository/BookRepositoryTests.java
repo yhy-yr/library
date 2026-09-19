@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static org.example.library.entity.BookStatus.OFF_SALE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.example.library.entity.BookStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -71,6 +72,43 @@ public class BookRepositoryTests{
         Optional<Book> result = bookRepository.findById(Long.MAX_VALUE);
 
         assertTrue(result.isEmpty());
+    }
+    @Test
+    void shouldUpdateBookStatus() {
+        String isbn = "TEST-STATUS-001";
+
+        jdbcTemplate.update("""
+        INSERT INTO book
+            (title, author, isbn, price, stock, status,
+             published_date, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+        """,
+                "测试图书",
+                "测试作者",
+                isbn,
+                new BigDecimal("10.00"),
+                1,
+                "ON_SALE",
+                LocalDate.of(2026, 9, 19)
+        );
+
+        Long bookId = jdbcTemplate.queryForObject(
+                "SELECT id FROM book WHERE isbn = ?",
+                Long.class,
+                isbn
+        );
+
+        int affectedRows =
+                bookRepository.updateStatus(bookId, OFF_SALE);
+
+        String actualStatus = jdbcTemplate.queryForObject(
+                "SELECT status FROM book WHERE id = ?",
+                String.class,
+                bookId
+        );
+
+        assertEquals(1, affectedRows);
+        assertEquals(OFF_SALE.name(), actualStatus);
     }
 
 }

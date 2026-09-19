@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
         // 409 表示请求与数据库当前数据发生冲突。
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body("ISBN 已存在");
+                .body("数据已存在");
     }
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleResourceNotFoundException(

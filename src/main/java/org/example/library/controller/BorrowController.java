@@ -3,6 +3,7 @@ package org.example.library.controller;
 import org.example.library.dto.BorrowDetailResponse;
 import org.example.library.dto.BorrowRequest;
 import org.example.library.entity.BorrowRecord;
+import org.example.library.entity.ReaderStatus;
 import org.example.library.service.BorrowService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

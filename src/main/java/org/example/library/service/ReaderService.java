@@ -1,10 +1,13 @@
 package org.example.library.service;
 
 import org.example.library.entity.Reader;
+import org.example.library.entity.ReaderStatus;
 import org.example.library.exception.ConflictException;
+import org.example.library.exception.ResourceNotFoundException;
 import org.example.library.repository.ReaderRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ReaderService {
@@ -39,6 +42,19 @@ public class ReaderService {
 
         if (reader.getStatus() == null) {
             throw new IllegalArgumentException("读者状态不能为空");
+        }
+    }
+    @Transactional
+    public void updateStatus(
+            Long id,
+            ReaderStatus status
+    ) {
+        int affectedRows = readerRepository.updateStatus(id, status);
+
+        if (affectedRows == 0) {
+            throw new ResourceNotFoundException(
+                    "读者不存在"
+            );
         }
     }
 }

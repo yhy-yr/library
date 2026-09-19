@@ -90,4 +90,21 @@ public class ReaderRepository {
 
         return readers.stream().findFirst();
     }
+    public int updateStatus(
+            Long id,
+            ReaderStatus status
+    ) {
+        String sql = """
+        UPDATE reader
+        SET status = ?,
+            updated_at = NOW()
+        WHERE id = ?
+        """;
+
+        return jdbcTemplate.update(
+                sql,
+                status.name(),
+                id
+        );
+    }
 }

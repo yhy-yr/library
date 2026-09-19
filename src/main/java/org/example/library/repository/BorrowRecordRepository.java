@@ -3,6 +3,7 @@ package org.example.library.repository;
 import org.example.library.dto.BorrowDetailResponse;
 import org.example.library.entity.BorrowRecord;
 import org.example.library.entity.BorrowStatus;
+import org.example.library.entity.ReaderStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -251,6 +252,7 @@ public class BorrowRecordRepository {
                 readerId
         );
     }
+
 
 
 
