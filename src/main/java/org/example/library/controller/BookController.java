@@ -1,6 +1,9 @@
 package org.example.library.controller;
 
+import jakarta.validation.Valid;
 import org.example.library.dto.BookPageResponse;
+import org.example.library.dto.CreateBookRequest;
+import org.example.library.dto.UpdateBookRequest;
 import org.example.library.entity.Book;
 import org.example.library.entity.BookStatus;
 import org.example.library.service.BookService;
@@ -32,12 +35,32 @@ public class BookController {
         return bookService.getAll();
     }
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody Book book) {
+    public ResponseEntity<Void> create(
+            /*
+             * @Valid 告诉 Spring：
+             * 在进入方法之前，执行 CreateBookRequest 上的校验注解。
+             */
+            @Valid @RequestBody CreateBookRequest request
+    ) {
+        /*
+         * DTO 只负责接收客户端数据。
+         * 在这里把允许的字段转换成数据库实体。
+         */
+        Book book = new Book();
+        book.setTitle(request.title());
+        book.setAuthor(request.author());
+        book.setIsbn(request.isbn());
+        book.setPrice(request.price());
+        book.setStock(request.stock());
+        book.setPublishedDate(request.publishedDate());
 
-        // Service 校验数据并执行 INSERT。
+        /*
+         * 状态由服务器决定，客户端不能在创建时任意指定。
+         */
+        book.setStatus(BookStatus.ON_SALE);
+
         bookService.create(book);
 
-        // 201 Created 表示成功创建了新资源。
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
@@ -55,17 +78,36 @@ public class BookController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(
             @PathVariable Long id,
-            @RequestBody Book book
-    ) {
-        // 执行修改，并取得受影响的记录数量。
-        int affectedRows = bookService.update(id, book);
 
-        // 返回 0 表示数据库中不存在该 ID。
+            /*
+             * 更新请求同样需要在进入方法体前执行 DTO 校验。
+             */
+            @Valid  @RequestBody UpdateBookRequest request
+    ) {
+        /*
+         * 把允许更新的字段转换成 Book。
+         * 不设置 id：路径 id 会在 Service 中写入。
+         * 不设置 status：普通更新不能改变上下架状态。
+         */
+        Book book = new Book();
+        book.setTitle(request.title());
+        book.setAuthor(request.author());
+        book.setIsbn(request.isbn());
+        book.setPrice(request.price());
+        book.setStock(request.stock());
+        book.setPublishedDate(request.publishedDate());
+
+        int affectedRows = bookService.update(
+                id,
+                book
+        );
+
+        // 更新 0 行，表示 URL 中的图书 ID 不存在。
         if (affectedRows == 0) {
             return ResponseEntity.notFound().build();
         }
 
-        // 修改成功，但不需要返回完整响应体。
+        // 更新成功且不需要响应正文。
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/available")

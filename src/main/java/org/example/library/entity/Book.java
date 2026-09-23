@@ -10,8 +10,8 @@ public class Book {
     private String author;
     private String isbn;
     private BigDecimal price;
-    private Integer stock =0;
-    private BookStatus status = BookStatus.ON_SALE;
+    private Integer stock ;
+    private BookStatus status;
     private LocalDate publishedDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

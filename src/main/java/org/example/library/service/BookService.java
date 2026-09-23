@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.math.BigDecimal;
 import org.example.library.dto.BookPageResponse;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static org.example.library.entity.BookStatus.OFF_SALE;
 
@@ -36,6 +37,13 @@ public class BookService {
     }
     public int create(Book book) {
         validateBook(book);
+        /*
+         * 创建图书时必须有初始状态。
+         * 普通资料更新不负责状态，因此这条规则只属于 create()。
+         */
+        if (book.getStatus() == null) {
+                     throw new IllegalArgumentException("图书状态不能为空");
+        }
 
         try {
             return bookRepository.save(book);
@@ -160,9 +168,7 @@ public class BookService {
         }
 
 // 状态必须存在。
-        if (book.getStatus() == null) {
-            throw new IllegalArgumentException("图书状态不能为空");
-        }
+
 
         // 价格必须填写，并且不能小于 0。
         if (book.getPrice() == null

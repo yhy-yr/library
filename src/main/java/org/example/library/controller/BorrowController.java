@@ -1,5 +1,6 @@
 package org.example.library.controller;
 
+import jakarta.validation.Valid;
 import org.example.library.dto.BorrowDetailResponse;
 import org.example.library.dto.BorrowRequest;
 import org.example.library.entity.BorrowRecord;
@@ -21,7 +22,7 @@ public class BorrowController {
     }
     @PostMapping
     public ResponseEntity<Void> borrow(
-            @RequestBody BorrowRequest request
+            @Valid @RequestBody BorrowRequest request
     ){
 
                 borrowService.borrow(request);

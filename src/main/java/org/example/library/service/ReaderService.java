@@ -9,6 +9,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class ReaderService {
 
@@ -57,4 +59,8 @@ public class ReaderService {
             );
         }
     }
+    public Optional<Reader> getById(Long id) {
+        return readerRepository.findById(id);
+    }
+
 }

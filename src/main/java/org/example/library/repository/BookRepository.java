@@ -1,5 +1,6 @@
 package org.example.library.repository;
 
+import org.example.library.dto.UpdateBookRequest;
 import org.example.library.entity.Book;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -73,7 +74,6 @@ public class BookRepository{
                 isbn = ?,
                 price = ?,
                 stock = ?,
-                status = ?,
                 published_date = ?,
                 updated_at = NOW()
             WHERE id = ?
@@ -86,7 +86,6 @@ public class BookRepository{
                 book.getIsbn(),
                 book.getPrice(),
                 book.getStock(),
-                book.getStatus().name(),
                 book.getPublishedDate(),
                 book.getId()
         );
@@ -155,6 +154,8 @@ public class BookRepository{
         );
 
     }
+
+
     public int updateStatus(
             Long id,
             BookStatus status
