@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: library
+  datasource:
+    url: jdbc:mysql://localhost:3306/library?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
