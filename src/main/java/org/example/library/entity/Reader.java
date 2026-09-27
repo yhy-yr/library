@@ -6,7 +6,7 @@ public class Reader {
         private Long id;
         private String name;
         private String phone;
-        private ReaderStatus status ;
+        private ReaderStatus status = ReaderStatus.ACTIVE ;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 

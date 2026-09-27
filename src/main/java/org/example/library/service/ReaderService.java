@@ -9,6 +9,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,6 +33,16 @@ public class ReaderService {
         }
     }
     private void validateReader(Reader reader) {
+        // 创建读者：先检查姓名、手机号。
+        validateReaderDetails(reader);
+
+        // 创建读者还必须有初始状态。
+        if (reader.getStatus() == null) {
+            throw new IllegalArgumentException("读者状态不能为空");
+        }
+    }
+
+    private void validateReaderDetails(Reader reader) {
         if (reader.getName() == null
                 || reader.getName().isBlank()) {
             throw new IllegalArgumentException("读者姓名不能为空");
@@ -41,11 +52,8 @@ public class ReaderService {
                 || reader.getPhone().isBlank()) {
             throw new IllegalArgumentException("手机号不能为空");
         }
-
-        if (reader.getStatus() == null) {
-            throw new IllegalArgumentException("读者状态不能为空");
-        }
     }
+
     @Transactional
     public void updateStatus(
             Long id,
@@ -61,6 +69,24 @@ public class ReaderService {
     }
     public Optional<Reader> getById(Long id) {
         return readerRepository.findById(id);
+    }
+    public List<Reader> getAll() {
+        return readerRepository.findAll();
+    }
+    public int update(Long id, Reader reader) {
+        // 更新资料只校验姓名和手机号，不要求 status。
+        validateReaderDetails(reader);
+        // 目标读者由 URL 中的 ID 决定。
+        reader.setId(id);
+
+        try {
+            return readerRepository.update(reader);
+        } catch (DuplicateKeyException exception) {
+            throw new ConflictException(
+                    "手机号已存在",
+                    exception
+            );
+        }
     }
 
 }

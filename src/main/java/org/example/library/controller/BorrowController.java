@@ -2,6 +2,7 @@ package org.example.library.controller;
 
 import jakarta.validation.Valid;
 import org.example.library.dto.BorrowDetailResponse;
+import org.example.library.dto.BorrowPageResponse;
 import org.example.library.dto.BorrowRequest;
 import org.example.library.entity.BorrowRecord;
 import org.example.library.entity.ReaderStatus;
@@ -51,6 +52,14 @@ public class BorrowController {
             @RequestParam Long readerId
     ) {
         return borrowService.getDetailsByReaderId(readerId);
+    }
+    @GetMapping("/page")
+    public BorrowPageResponse getPageByReaderId(
+            @RequestParam Long readerId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return borrowService.getPageByReaderId(readerId, page, size);
     }
 
 }

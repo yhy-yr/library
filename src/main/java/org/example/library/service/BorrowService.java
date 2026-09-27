@@ -1,6 +1,7 @@
 package org.example.library.service;
 
 import org.example.library.dto.BorrowDetailResponse;
+import org.example.library.dto.BorrowPageResponse;
 import org.example.library.dto.BorrowRequest;
 import org.example.library.entity.*;
 import org.example.library.exception.ConflictException;
@@ -151,11 +152,41 @@ public class BorrowService {
                         )
                 );
     }
+    public BorrowPageResponse getPageByReaderId(
+            Long readerId,
+            int page,
+            int size
+    ) {
+        ensureReaderExists(readerId);
 
+        if (page < 1) {
+            throw new IllegalArgumentException("页码必须从 1 开始");
+        }
 
+        if (size < 1 || size > 100) {
+            throw new IllegalArgumentException("每页数量必须在 1 到 100 之间");
+        }
 
+        // 查询当前页的数据。
+        List<BorrowDetailResponse> content =
+                borrowRecordRepository.findDetailPageByReaderId(
+                        readerId,
+                        page,
+                        size
+                );
 
+        // 查询该读者一共有多少条借阅历史。
+        long total = borrowRecordRepository.countByReaderId(readerId);
 
+        // 向上取整，例如 3 条数据、每页 2 条，共 2 页。
+        int totalPages = (int) ((total + size-1)/size);
 
-
+        return new BorrowPageResponse(
+                content,
+                page,
+                size,
+                total,
+                totalPages
+        );
+    }
 }

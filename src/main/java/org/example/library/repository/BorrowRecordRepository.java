@@ -146,6 +146,40 @@ public class BorrowRecordRepository {
                 readerId
         );
     }
+    public List<BorrowDetailResponse> findDetailPageByReaderId(
+            Long readerId,
+            int page,
+            int size
+    ) {
+        int offset = (page-1)*size;/* 填空 1 */
+
+        String sql = """
+            SELECT br.id,
+                   br.reader_id,
+                   r.name AS reader_name,
+                   br.book_id,
+                   b.title AS book_title,
+                   br.borrowed_at,
+                   br.due_at,
+                   br.returned_at,
+                   br.status
+            FROM borrow_record br
+            JOIN reader r ON br.reader_id = r.id
+            JOIN book b ON br.book_id = b.id
+            WHERE br.reader_id = ?
+            ORDER BY br.borrowed_at DESC, br.id DESC
+            LIMIT ?
+            OFFSET ?
+            """;
+
+        return jdbcTemplate.query(
+                sql,
+                this::mapDetailRow,
+                readerId,
+                size/* 填空 2 */,
+                offset
+        );
+    }
     public long countBorrowedByReaderId(Long readerId) {
         String sql = """
         SELECT count(*)
@@ -251,6 +285,25 @@ public class BorrowRecordRepository {
                 this::mapDetailRow,
                 readerId
         );
+    }
+    /**
+     * 统计某位读者的全部借阅历史数量，
+     * 包括未归还和已归还的记录。
+     */
+    public long countByReaderId(Long readerId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM borrow_record
+            WHERE reader_id = ?
+            """;
+
+        Long total = jdbcTemplate.queryForObject(
+                sql,
+                Long.class,
+                readerId
+        );
+
+        return total;
     }
 
 

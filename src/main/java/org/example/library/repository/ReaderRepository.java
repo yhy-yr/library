@@ -107,4 +107,29 @@ public class ReaderRepository {
                 id
         );
     }
+    public List<Reader> findAll() {
+        String sql = """
+            SELECT id, name, phone, status, created_at, updated_at
+            FROM reader
+            ORDER BY id DESC
+            """;
+
+        return jdbcTemplate.query(sql, this::mapRow);
+    }
+    public int update(Reader reader) {
+        String sql = """
+            UPDATE reader
+            SET name = ?,
+                phone = ?,
+                updated_at = NOW()
+            WHERE id = ?
+            """;
+
+        return jdbcTemplate.update(
+                sql,
+                reader.getName(),
+                reader.getPhone(),
+                reader.getId()
+        );
+    }
 }
